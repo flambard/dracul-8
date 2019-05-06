@@ -1,6 +1,9 @@
 (ns dracul-8.core
   (:gen-class)
-  (:require [seesaw.core :refer [canvas alert listen frame pack! show!]]))
+  (:require [seesaw.core :refer [canvas alert listen frame pack! show!]]
+            [dynne.sampled-sound :refer [play square-wave trim]]))
+
+;; Longest beep: 4250 milliseconds
 
 
 (defn -main
@@ -13,6 +16,9 @@
                      :width 512
                      :height 256
                      :on-close :exit
-                     :content screen-canvas)]
-    (listen frame :key-pressed (fn [key] (println (.toString key))))
+                     :content screen-canvas)
+        beep (square-wave 0.5 110)]
+    (listen frame :key-pressed (fn [key]
+                                 (play beep 44100)
+                                 (println (.toString key))))
     (show! frame)))

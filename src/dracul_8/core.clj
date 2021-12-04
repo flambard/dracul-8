@@ -7,10 +7,12 @@
 
 ;; Longest beep: 4250 milliseconds
 
+(defn byte-to-nibbles [byte]
+  [(-> byte (bit-and 2r11110000) (bit-shift-right 4))
+   (-> byte (bit-and 2r1111))])
+
 (defn bytes-to-ops [bytes]
-  (mapv (fn [[left right]]
-          (bit-or (bit-shift-left left 8) right))
-        (partition 2 bytes)))
+  (partition 4 (mapcat byte-to-nibbles bytes)))
 
 (defn read-bytes-from-file [file-path]
   (with-open [in (input-stream file-path)]
@@ -21,9 +23,9 @@
           (recur (conj bytes byte)))))))
 
 (defn print-ops [ops]
-  (loop [[op & rest] ops
+  (loop [[[n0 n1 n2 n3] & rest] ops
          addr 0x200]
-    (cl-format true "~3,'0X: ~4,'0X~%" addr op)
+    (cl-format true "~3,'0X: ~1X~1X~1X~1X~%" addr n0 n1 n2 n3)
     (when (not (nil? rest))
       (recur rest (+ addr 2)))))
 
